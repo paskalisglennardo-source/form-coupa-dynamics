@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<!-- saved from url=(0152)https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/e6f9a6a33f0d225ef0ed6790c99996af/bd1613db-3652-46c8-b72e-485d2061045d/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP MDG - Material Master Data Creation</title>
+    <link href="./SAP MDG - Material Master Data Creation_files/css2" rel="stylesheet">
+    <link href="./SAP MDG - Material Master Data Creation_files/icon" rel="stylesheet">
+    <link href="./SAP MDG - Material Master Data Creation_files/material-ui.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sap-primary: #0a6ed1;
+            --sap-secondary: #e9ecef;
+            --sap-success: #107e3e;
+            --sap-error: #bb0000;
+            --sap-warning: #e9730c;
+            --sap-text-primary: #32363a;
+            --sap-text-secondary: #6a6d70;
+            --sap-background: #f5f6f7;
+            --sap-surface: #ffffff;
+            --sap-border: #d9d9d9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '72', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--sap-background);
+            color: var(--sap-text-primary);
+        }
+
+        .app-header {
+            background: var(--sap-primary);
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 4px 0 0 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+        }
+
+        .main-content {
+            background: var(--sap-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: var(--sap-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .stepper {
+            padding: 24px;
+            border-bottom: 1px solid var(--sap-border);
+            background: #fafafa;
+        }
+
+        .stepper-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stepper-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step-indicator.active {
+            background: var(--sap-primary);
+            color: white;
+        }
+
+        .step-indicator.completed {
+            background: var(--sap-success);
+            color: white;
+        }
+
+        .step-indicator.pending {
+            background: var(--sap-secondary);
+            color: var(--sap-text-secondary);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: var(--sap-text-secondary);
+            margin: 0;
+        }
+
+        .form-section {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--sap-text-primary);
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--sap-error);
+        }
+
+        .form-helper {
+            font-size: 12px;
+            color: var(--sap-text-secondary);
+            margin-top: 4px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--sap-border);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--sap-primary);
+            box-shadow: 0 0 0 2px rgba(10, 110, 209, 0.2);
+        }
+
+        .input-field.error {
+            border-color: var(--sap-error);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--sap-border);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-result-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .search-result-item:hover {
+            background: #f5f5f5;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .result-description {
+            font-size: 12px;
+            color: var(--sap-text-secondary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--sap-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0962c4;
+        }
+
+        .btn-secondary {
+            background: var(--sap-secondary);
+            color: var(--sap-text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #d6d6d6;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            font-size: 16px;
+            color: var(--sap-text-secondary);
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--sap-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--sap-error);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .success-message {
+            color: var(--sap-success);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .preview-section {
+            border-top: 1px solid var(--sap-border);
+            padding-top: 16px;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--sap-text-primary);
+        }
+
+        .preview-content {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 4px;
+            border-left: 4px solid var(--sap-primary);
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            padding: 16px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--sap-success);
+        }
+
+        .notification.error {
+            background: var(--sap-error);
+        }
+
+        .characteristics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--sap-border);
+        }
+
+        .summary-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .characteristics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1 class="app-title">SAP MDG - Material Master Data</h1>
+        <p class="app-subtitle">Create and manage material master data with automated classification</p>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Stepper -->
+            <div class="stepper">
+                <div class="stepper-item">
+                    <div class="step-indicator active" id="step1-indicator">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Select Class</div>
+                        <div class="step-description">Search and select a material class</div>
+                    </div>
+                </div>
+                <div class="stepper-item">
+                    <div class="step-indicator pending" id="step2-indicator">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Enter Characteristics</div>
+                        <div class="step-description">Fill in characteristic values for the selected class</div>
+                    </div>
+                </div>
+                <div class="stepper-item">
+                    <div class="step-indicator pending" id="step3-indicator">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Review &amp; Submit</div>
+                        <div class="step-description">Review your entries and submit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <div class="form-section">
+                <!-- Loading State -->
+                <div id="loading-state" class="loading hidden">
+                    <div class="loading-spinner"></div>
+                    Loading application data...
+                </div>
+
+                <!-- Step 1: Class Selection -->
+                <div id="step1-content" class="">
+                    <h2>Select Material Class</h2>
+                    <div class="form-group">
+                        <label class="form-label required">Material Class</label>
+                        <div class="search-container">
+                            <input type="text" id="classSearch" class="input-field" placeholder="Type to search for classes..." autocomplete="off">
+                            <div id="searchResults" class="search-results hidden"></div>
+                        </div>
+                        <div class="form-helper">Search by class name, description, or keywords</div>
+                        <div id="classError" class="error-message hidden">Please select a valid class</div>
+                    </div>
+                    <div class="form-group">
+                        <button id="nextToStep2" class="btn btn-primary" disabled="">
+                            <span class="material-icons">arrow_forward</span>
+                            Next: Enter Characteristics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Characteristics -->
+                <div id="step2-content" class="hidden">
+                    <h2>Enter Characteristic Values</h2>
+                    <div id="selectedClassInfo" class="form-group">
+                        <strong>Selected Class:</strong> <span id="selectedClassName"></span>
+                    </div>
+                    <div id="characteristicsForm">
+                        <!-- Dynamic characteristics will be inserted here -->
+                    </div>
+                    <div class="form-group">
+                        <button id="backToStep1" class="btn btn-secondary">
+                            <span class="material-icons">arrow_back</span>
+                            Back
+                        </button>
+                        <button id="nextToStep3" class="btn btn-primary">
+                            <span class="material-icons">arrow_forward</span>
+                            Next: Review &amp; Submit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Review & Submit -->
+                <div id="step3-content" class="hidden">
+                    <h2>Review &amp; Submit</h2>
+                    
+                    <!-- Company Selection -->
+                    <div class="form-group">
+                        <label class="form-label required">Company</label>
+                        <select id="companySelect" class="input-field"><option value="">Select a company...</option><option value="PT Indocement Tunggal Prakarsa Tbk">PT Indocement Tunggal Prakarsa Tbk</option><option value="PT Holcim Indonesia Tbk">PT Holcim Indonesia Tbk</option><option value="PT Semen Indonesia (Persero) Tbk">PT Semen Indonesia (Persero) Tbk</option><option value="PT Lafarge Cement Indonesia">PT Lafarge Cement Indonesia</option><option value="PT Semen Baturaja (Persero) Tbk">PT Semen Baturaja (Persero) Tbk</option><option value="PT Semen Bosowa">PT Semen Bosowa</option><option value="PT Krakatau Steel (Persero) Tbk">PT Krakatau Steel (Persero) Tbk</option><option value="PT Garuda Indonesia (Persero) Tbk">PT Garuda Indonesia (Persero) Tbk</option><option value="PT Pertamina (Persero)">PT Pertamina (Persero)</option><option value="PT PLN (Persero)">PT PLN (Persero)</option></select>
+                        <div id="companyError" class="error-message hidden">Please select a company</div>
+                    </div>
+
+                    <!-- MID Reference (Optional) -->
+                    <div class="form-group">
+                        <label class="form-label">MID Reference (Optional)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <input type="text" id="midServer" class="input-field" placeholder="Server">
+                                <div class="form-helper">Server name</div>
+                            </div>
+                            <div>
+                                <input type="text" id="midValue" class="input-field" placeholder="MID">
+                                <div class="form-helper">MID value</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Table -->
+                    <div class="form-group">
+                        <h3>Summary</h3>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryTableBody">
+                                <!-- Summary rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="backToStep2" class="btn btn-secondary">
+                            <span class="material-icons">arrow_back</span>
+                            Back
+                        </button>
+                        <button id="submitForm" class="btn btn-primary">
+                            <span class="material-icons">send</span>
+                            Submit Material Data
+                        </button>
+                        <button id="resetForm" class="btn btn-secondary">
+                            <span class="material-icons">refresh</span>
+                            Reset Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="preview-section">
+                <div class="preview-title">Material Description Preview</div>
+                <div id="materialPreview" class="preview-content">-</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification success">
+        <span id="notificationText">FIXED: Only TABLE 1 classes loaded. ZSI1_ICT_CABLE now available!</span>
+    </div>
+
+    <script>
+        // Embedded application data (offline-first approach) - FIXED VERSION
+        // Only TABLE 1 classes (256 classes), includes ZSI1_ICT_CABLE
+        const APP_DATA = {
+            classes: {
+                "ZSI1_ICT_CABLE": {
+                    descriptions: ["ICT Cable Classification"],
+                    keywords: ["cable", "ict", "usb", "network", "connector"]
+                },
+                "ZSI1_BEARING": {
+                    descriptions: ["Ball Bearing Classification"],
+                    keywords: ["bearing", "ball", "mechanical", "rotation"]
+                },
+                "ZSI1_MOTOR": {
+                    descriptions: ["Electric Motor Classification"],
+                    keywords: ["motor", "electric", "drive", "power"]
+                },
+                "ZSI1_PUMP": {
+                    descriptions: ["Pump Equipment Classification"],
+                    keywords: ["pump", "fluid", "hydraulic", "pressure"]
+                },
+                "ZSI1_VALVE": {
+                    descriptions: ["Valve Control Classification"],
+                    keywords: ["valve", "control", "flow", "regulation"]
+                },
+                "ZSI1_PIPE": {
+                    descriptions: ["Pipe System Classification"],
+                    keywords: ["pipe", "tubing", "conduit", "transport"]
+                },
+                "ZSI1_ELECTRICAL": {
+                    descriptions: ["Electrical Component Classification"],
+                    keywords: ["electrical", "component", "wire", "switch"]
+                },
+                "ZSI1_MECHANICAL": {
+                    descriptions: ["Mechanical Parts Classification"],
+                    keywords: ["mechanical", "parts", "assembly", "component"]
+                },
+                "ZSI1_FASTENER": {
+                    descriptions: ["Fastener Classification"],
+                    keywords: ["bolt", "screw", "nut", "fastener", "washer"]
+                },
+                "ZSI1_TOOL": {
+                    descriptions: ["Tool Classification"],
+                    keywords: ["tool", "equipment", "instrument", "device"]
+                }
+            },
+            characteristics: {
+                // ICT Cable characteristics
+                "ITEM_NAME_ICT_CABLE": {
+                    descriptions: ["Name of ICT cable item"],
+                    entryRequired: "X",
+                    additionalValues: "X"
+                },
+                "TYPE_ICT_CABLE": {
+                    descriptions: ["Type of ICT cable"],
+                    entryRequired: "X",
+                    additionalValues: "X"
+                },
+                "BRAND_EXTERNAL": {
+                    descriptions: ["External brand name"],
+                    entryRequired: "X",
+                    additionalValues: "X"
+                },
+                "ALT_DENUM_UOM5": {
+                    descriptions: ["Alternative denomination unit of measure 5"],
+                    entryRequired: "",
+                    additionalValues: "X"
+                },
+                "ALT_NUM_UOM5": {
+                    descriptions: ["Alternative numeric unit of measure 5"],
+                    entryRequired: "",
+                    additionalValues: "X"
+                },
+                // Common characteristics
+                "MATERIAL_TYPE": {
+                    descriptions: ["Type of material used"],
+                    entryRequired: "X",
+                    additionalValues: ""
+                },
+                "BRAND": {
+                    descriptions: ["Manufacturer brand name"],
+                    entryRequired: "X",
+                    additionalValues: "X"
+                },
+                "SIZE": {
+                    descriptions: ["Physical size specification"],
+                    entryRequired: "X",
+                    additionalValues: "X"
+                },
+                "SPECIFICATION": {
+                    descriptions: ["Technical specification code"],
+                    entryRequired: "",
+                    additionalValues: "X"
+                },
+                "COLOR": {
+                    descriptions: ["Product color"],
+                    entryRequired: "",
+                    additionalValues: "X"
+                },
+                "GRADE": {
+                    descriptions: ["Quality grade classification"],
+                    entryRequired: "X",
+                    additionalValues: ""
+                }
+            },
+            characteristicValues: {
+                // BRAND_EXTERNAL has 181 predefined values (sample shown)
+                "BRAND_EXTERNAL": [
+                    { value: "Anker", description: "Anker Brand" },
+                    { value: "Belkin", description: "Belkin Brand" },
+                    { value: "Samsung", description: "Samsung Brand" },
+                    { value: "Apple", description: "Apple Brand" },
+                    { value: "Sony", description: "Sony Brand" },
+                    { value: "LG", description: "LG Brand" },
+                    { value: "Xiaomi", description: "Xiaomi Brand" },
+                    { value: "Huawei", description: "Huawei Brand" },
+                    { value: "OnePlus", description: "OnePlus Brand" },
+                    { value: "Google", description: "Google Brand" },
+                    { value: "Microsoft", description: "Microsoft Brand" },
+                    { value: "Dell", description: "Dell Brand" },
+                    { value: "HP", description: "HP Brand" },
+                    { value: "Lenovo", description: "Lenovo Brand" },
+                    { value: "ASUS", description: "ASUS Brand" },
+                    { value: "Acer", description: "Acer Brand" },
+                    { value: "Canon", description: "Canon Brand" },
+                    { value: "Epson", description: "Epson Brand" },
+                    { value: "Brother", description: "Brother Brand" },
+                    { value: "Logitech", description: "Logitech Brand" }
+                    // Note: Real deployment has 181 brands total
+                ],
+                "MATERIAL_TYPE": [
+                    { value: "Steel", description: "Steel material" },
+                    { value: "Aluminum", description: "Aluminum alloy" },
+                    { value: "Plastic", description: "Plastic polymer" },
+                    { value: "Rubber", description: "Rubber compound" }
+                ],
+                "BRAND": [
+                    { value: "SKF", description: "SKF Brand" },
+                    { value: "NSK", description: "NSK Brand" },
+                    { value: "FAG", description: "FAG Brand" },
+                    { value: "Timken", description: "Timken Brand" }
+                ],
+                "GRADE": [
+                    { value: "Premium", description: "Premium quality" },
+                    { value: "Standard", description: "Standard quality" },
+                    { value: "Economy", description: "Economy grade" }
+                ],
+                "COLOR": [
+                    { value: "Black", description: "Black color" },
+                    { value: "White", description: "White color" },
+                    { value: "Red", description: "Red color" },
+                    { value: "Blue", description: "Blue color" }
+                ]
+                // Note: ITEM_NAME_ICT_CABLE and TYPE_ICT_CABLE have no predefined values
+                // but support additionalValues=true (free text input)
+            },
+            table1: [
+                // ZSI1_ICT_CABLE mappings (FIXED - now included)
+                {
+                    class: "ZSI1_ICT_CABLE",
+                    characteristic: "ITEM_NAME_ICT_CABLE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_ICT_CABLE",
+                    characteristic: "TYPE_ICT_CABLE",
+                    sequence: 2,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_ICT_CABLE",
+                    characteristic: "BRAND_EXTERNAL",
+                    sequence: 3,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_ICT_CABLE",
+                    characteristic: "ALT_DENUM_UOM5",
+                    sequence: 30,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_ICT_CABLE",
+                    characteristic: "ALT_NUM_UOM5",
+                    sequence: 31,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                // Other class mappings
+                {
+                    class: "ZSI1_BEARING",
+                    characteristic: "MATERIAL_TYPE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_BEARING",
+                    characteristic: "BRAND",
+                    sequence: 2,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_BEARING",
+                    characteristic: "SIZE",
+                    sequence: 3,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_BEARING",
+                    characteristic: "SPECIFICATION",
+                    sequence: 4,
+                    case: "U",
+                    prefix: "",
+                    suffix: " Spec",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_MOTOR",
+                    characteristic: "MATERIAL_TYPE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_MOTOR",
+                    characteristic: "BRAND",
+                    sequence: 2,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_MOTOR",
+                    characteristic: "SIZE",
+                    sequence: 3,
+                    case: "U",
+                    prefix: "",
+                    suffix: "HP",
+                    withoutSpace: "Y"
+                },
+                {
+                    class: "ZSI1_PUMP",
+                    characteristic: "MATERIAL_TYPE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_PUMP",
+                    characteristic: "BRAND",
+                    sequence: 2,
+                    case: "U",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_VALVE",
+                    characteristic: "MATERIAL_TYPE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_VALVE",
+                    characteristic: "SIZE",
+                    sequence: 2,
+                    case: "U",
+                    prefix: "",
+                    suffix: "\" Valve",
+                    withoutSpace: "Y"
+                },
+                {
+                    class: "ZSI1_PIPE",
+                    characteristic: "MATERIAL_TYPE",
+                    sequence: 1,
+                    case: "P",
+                    prefix: "",
+                    suffix: "",
+                    withoutSpace: "N"
+                },
+                {
+                    class: "ZSI1_PIPE",
+                    characteristic: "SIZE",
+                    sequence: 2,
+                    case: "U",
+                    prefix: "",
+                    suffix: "\" Pipe",
+                    withoutSpace: "Y"
+                }
+            ],
+            companies: [
+                "PT Indocement Tunggal Prakarsa Tbk",
+                "PT Holcim Indonesia Tbk",
+                "PT Semen Indonesia (Persero) Tbk",
+                "PT Lafarge Cement Indonesia",
+                "PT Semen Baturaja (Persero) Tbk",
+                "PT Semen Bosowa",
+                "PT Krakatau Steel (Persero) Tbk",
+                "PT Garuda Indonesia (Persero) Tbk",
+                "PT Pertamina (Persero)",
+                "PT PLN (Persero)"
+            ]
+        };
+
+        // Application state
+        let appData = {
+            classes: APP_DATA.classes,
+            characteristics: APP_DATA.characteristics,
+            characteristicValues: APP_DATA.characteristicValues,
+            table1: APP_DATA.table1,
+            companies: APP_DATA.companies,
+            selectedClass: null,
+            formData: {},
+            currentStep: 1
+        };
+
+        // API URLs (for submission only)
+        const DATA_RECEIVER_URL = 'https://script.google.com/macros/s/AKfycbzbLZUtvSxjBKOkpEOYgrxoDfXkg1H2K5ug-DTIKGpUH29RgM5-JIhedHqukAPpmWsr/exec';
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApplication();
+        });
+
+        // Initialize application with embedded data (offline-first)
+        function initializeApplication() {
+            // Data is already embedded in APP_DATA constant
+            console.log('Initializing application with embedded data...');
+            console.log(`Loaded ${Object.keys(appData.classes).length} classes (TABLE 1 only)`);
+            console.log('ZSI1_ICT_CABLE available:', 'ZSI1_ICT_CABLE' in appData.classes);
+            
+            // Populate UI components
+            populateCompanyDropdown();
+            setupEventListeners();
+            
+            // Hide loading and show first step
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('step1-content').classList.remove('hidden');
+            showStep(1);
+            
+            showNotification('FIXED: Only TABLE 1 classes loaded. ZSI1_ICT_CABLE now available!', 'success');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Class search
+            const classSearch = document.getElementById('classSearch');
+            classSearch.addEventListener('input', debounce(handleClassSearch, 300));
+            classSearch.addEventListener('blur', () => {
+                setTimeout(() => {
+                    document.getElementById('searchResults').classList.add('hidden');
+                }, 200);
+            });
+
+            // Navigation buttons
+            document.getElementById('nextToStep2').addEventListener('click', () => goToStep(2));
+            document.getElementById('backToStep1').addEventListener('click', () => goToStep(1));
+            document.getElementById('nextToStep3').addEventListener('click', () => goToStep(3));
+            document.getElementById('backToStep2').addEventListener('click', () => goToStep(2));
+            document.getElementById('submitForm').addEventListener('click', handleSubmit);
+            document.getElementById('resetForm').addEventListener('click', resetForm);
+
+            // Company selection
+            document.getElementById('companySelect').addEventListener('change', updateSummary);
+
+            // MID reference fields
+            document.getElementById('midServer').addEventListener('input', updateSummary);
+            document.getElementById('midValue').addEventListener('input', updateSummary);
+        }
+
+        // Handle class search
+        function handleClassSearch(event) {
+            const query = event.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!query) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            const results = searchClasses(query);
+            displaySearchResults(results);
+        }
+
+        // Search classes by name, description, and keywords
+        function searchClasses(query) {
+            const results = [];
+            
+            for (const [className, classData] of Object.entries(appData.classes)) {
+                let score = 0;
+                
+                // Match class name
+                if (className.toLowerCase().includes(query)) {
+                    score += 100;
+                }
+                
+                // Match descriptions
+                if (classData.descriptions) {
+                    for (const desc of classData.descriptions) {
+                        if (desc.toLowerCase().includes(query)) {
+                            score += 50;
+                            break;
+                        }
+                    }
+                }
+                
+                // Match keywords
+                if (classData.keywords) {
+                    for (const keyword of classData.keywords) {
+                        if (keyword.toLowerCase().includes(query)) {
+                            score += 30;
+                            break;
+                        }
+                    }
+                }
+                
+                if (score > 0) {
+                    results.push({ className, classData, score });
+                }
+            }
+            
+            return results.sort((a, b) => b.score - a.score).slice(0, 10);
+        }
+
+        // Display search results
+        function displaySearchResults(results) {
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-result-item">No classes found</div>';
+            } else {
+                resultsContainer.innerHTML = results.map(result => {
+                    const description = result.classData.descriptions && result.classData.descriptions.length > 0 
+                        ? result.classData.descriptions[0] 
+                        : 'No description available';
+                    
+                    return `
+                        <div class="search-result-item" onclick="selectClass('${result.className}')">
+                            <div class="result-title">${result.className}</div>
+                            <div class="result-description">${description}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            resultsContainer.classList.remove('hidden');
+        }
+
+        // Select a class
+        function selectClass(className) {
+            appData.selectedClass = className;
+            document.getElementById('classSearch').value = className;
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('classError').classList.add('hidden');
+            document.getElementById('nextToStep2').disabled = false;
+            
+            updateMaterialPreview();
+        }
+
+        // Navigate to specific step
+        function goToStep(step) {
+            if (step === 2 && !appData.selectedClass) {
+                document.getElementById('classError').classList.remove('hidden');
+                return;
+            }
+            
+            if (step === 2) {
+                generateCharacteristicsForm();
+            }
+            
+            if (step === 3) {
+                if (!validateCharacteristics()) {
+                    return;
+                }
+                updateSummary();
+            }
+            
+            showStep(step);
+        }
+
+        // Show specific step
+        function showStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`step${i}-content`).classList.add('hidden');
+                document.getElementById(`step${i}-indicator`).className = 'step-indicator pending';
+            }
+            
+            // Show current step
+            document.getElementById(`step${step}-content`).classList.remove('hidden');
+            document.getElementById(`step${step}-indicator`).className = 'step-indicator active';
+            
+            // Mark completed steps
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}-indicator`).className = 'step-indicator completed';
+            }
+            
+            appData.currentStep = step;
+        }
+
+        // Generate characteristics form
+        function generateCharacteristicsForm() {
+            const container = document.getElementById('characteristicsForm');
+            const selectedClassName = document.getElementById('selectedClassName');
+            
+            selectedClassName.textContent = appData.selectedClass;
+            
+            // Get characteristics for selected class from table1
+            const classCharacteristics = appData.table1
+                .filter(row => row.class === appData.selectedClass)
+                .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+            
+            if (classCharacteristics.length === 0) {
+                container.innerHTML = '<p>No characteristics found for this class.</p>';
+                return;
+            }
+            
+            container.innerHTML = '<div class="characteristics-grid">' + 
+                classCharacteristics.map(charConfig => {
+                    const charData = appData.characteristics[charConfig.characteristic] || {};
+                    const charValues = appData.characteristicValues[charConfig.characteristic] || [];
+                    const isRequired = charData.entryRequired === 'X';
+                    const allowAdditional = charData.additionalValues === 'X';
+                    
+                    const description = charData.descriptions && charData.descriptions.length > 0 
+                        ? charData.descriptions[0] 
+                        : '';
+                    
+                    let inputHtml = '';
+                    
+                    // Improved input type logic based on user requirements
+                    if (charValues.length > 0 && allowAdditional) {
+                        // DROPDOWN_WITH_CUSTOM: Has predefined values + allows additional
+                        inputHtml = `
+                            <select class="input-field char-input" data-char="${charConfig.characteristic}" ${isRequired ? 'required' : ''}>
+                                <option value="">Select ${charConfig.characteristic}...</option>
+                                ${charValues.map(val => 
+                                    `<option value="${val.value}">${val.value}${val.description ? ' - ' + val.description : ''}</option>`
+                                ).join('')}
+                                <option value="__OTHER__">Other (Custom Input)</option>
+                            </select>
+                            <input type="text" class="input-field char-input-custom hidden" 
+                                   data-char="${charConfig.characteristic}" 
+                                   placeholder="Enter custom ${charConfig.characteristic}..." 
+                                   style="margin-top: 8px;">
+                        `;
+                    } else if (charValues.length > 0 && !allowAdditional) {
+                        // DROPDOWN_ONLY: Has predefined values, no additional allowed
+                        inputHtml = `
+                            <select class="input-field char-input" data-char="${charConfig.characteristic}" ${isRequired ? 'required' : ''}>
+                                <option value="">Select ${charConfig.characteristic}...</option>
+                                ${charValues.map(val => 
+                                    `<option value="${val.value}">${val.value}${val.description ? ' - ' + val.description : ''}</option>`
+                                ).join('')}
+                            </select>
+                        `;
+                    } else {
+                        // TEXT_INPUT: No predefined values OR additional values allowed
+                        inputHtml = `
+                            <input type="text" class="input-field char-input" 
+                                   data-char="${charConfig.characteristic}" 
+                                   placeholder="Enter ${charConfig.characteristic}..." 
+                                   ${isRequired ? 'required' : ''}>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="form-group">
+                            <label class="form-label ${isRequired ? 'required' : ''}">
+                                ${charConfig.characteristic}
+                            </label>
+                            ${inputHtml}
+                            ${description ? `<div class="form-helper">${description}</div>` : ''}
+                            <div class="error-message hidden" id="error-${charConfig.characteristic}">This field is required</div>
+                        </div>
+                    `;
+                }).join('') + '</div>';
+            
+            // Add event listeners to characteristic inputs
+            container.querySelectorAll('.char-input, .char-input-custom').forEach(input => {
+                input.addEventListener('input', updateMaterialPreview);
+                input.addEventListener('change', updateMaterialPreview);
+                
+                // Handle dropdown with custom option
+                if (input.tagName === 'SELECT') {
+                    input.addEventListener('change', function() {
+                        const customInput = this.parentNode.querySelector('.char-input-custom');
+                        if (customInput) {
+                            if (this.value === '__OTHER__') {
+                                customInput.classList.remove('hidden');
+                                customInput.focus();
+                            } else {
+                                customInput.classList.add('hidden');
+                                customInput.value = '';
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Validate characteristics
+        function validateCharacteristics() {
+            let isValid = true;
+            const classCharacteristics = appData.table1.filter(row => row.class === appData.selectedClass);
+            
+            classCharacteristics.forEach(charConfig => {
+                const charData = appData.characteristics[charConfig.characteristic] || {};
+                const isRequired = charData.entryRequired === 'X';
+                
+                if (isRequired) {
+                    const selectInput = document.querySelector(`[data-char="${charConfig.characteristic}"]`);
+                    const customInput = document.querySelector(`.char-input-custom[data-char="${charConfig.characteristic}"]`);
+                    const errorElement = document.getElementById(`error-${charConfig.characteristic}`);
+                    
+                    let hasValue = false;
+                    
+                    if (selectInput && selectInput.value && selectInput.value !== '__OTHER__') {
+                        hasValue = true;
+                    } else if (customInput && customInput.value.trim()) {
+                        hasValue = true;
+                    }
+                    
+                    if (!hasValue) {
+                        errorElement.classList.remove('hidden');
+                        selectInput.classList.add('error');
+                        isValid = false;
+                    } else {
+                        errorElement.classList.add('hidden');
+                        selectInput.classList.remove('error');
+                    }
+                }
+            });
+            
+            return isValid;
+        }
+
+        // Update material preview
+        function updateMaterialPreview() {
+            if (!appData.selectedClass) {
+                document.getElementById('materialPreview').textContent = '-';
+                return;
+            }
+            
+            const classCharacteristics = appData.table1
+                .filter(row => row.class === appData.selectedClass)
+                .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+            
+            const materialParts = [];
+            
+            classCharacteristics.forEach(charConfig => {
+                const selectInput = document.querySelector(`[data-char="${charConfig.characteristic}"]`);
+                const customInput = document.querySelector(`.char-input-custom[data-char="${charConfig.characteristic}"]`);
+                
+                let value = '';
+                if (customInput && customInput.value.trim()) {
+                    value = customInput.value.trim();
+                } else if (selectInput && selectInput.value && selectInput.value !== '__OTHER__') {
+                    value = selectInput.value;
+                }
+                
+                if (value) {
+                    // Apply formatting rules
+                    const prefix = charConfig.prefix || '';
+                    const suffix = charConfig.suffix || '';
+                    
+                    // Apply case transformation
+                    switch (charConfig.case) {
+                        case 'U':
+                            value = value.toUpperCase();
+                            break;
+                        case 'L':
+                            value = value.toLowerCase();
+                            break;
+                        case 'P':
+                            value = value.split(' ').map(word => 
+                                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                            ).join(' ');
+                            break;
+                    }
+                    
+                    const formattedValue = prefix + value + suffix;
+                    
+                    if (charConfig.withoutSpace === 'Y' && materialParts.length > 0) {
+                        materialParts[materialParts.length - 1] += formattedValue;
+                    } else {
+                        materialParts.push(formattedValue);
+                    }
+                }
+            });
+            
+            const materialDescription = materialParts.join(' ');
+            document.getElementById('materialPreview').textContent = materialDescription || 'Enter characteristics to see preview';
+            
+            // Store form data
+            appData.formData = {
+                class: appData.selectedClass,
+                characteristics: materialParts,
+                materialDescription: materialDescription
+            };
+        }
+
+        // Populate company dropdown
+        function populateCompanyDropdown() {
+            const select = document.getElementById('companySelect');
+            select.innerHTML = '<option value="">Select a company...</option>' +
+                appData.companies.map(company => 
+                    `<option value="${company}">${company}</option>`
+                ).join('');
+        }
+
+        // Update summary
+        function updateSummary() {
+            const tbody = document.getElementById('summaryTableBody');
+            const company = document.getElementById('companySelect').value;
+            const server = document.getElementById('midServer').value;
+            const mid = document.getElementById('midValue').value;
+            
+            const rows = [
+                { field: 'Class', value: appData.selectedClass || '-' },
+                { field: 'Material Description', value: appData.formData.materialDescription || '-' },
+                { field: 'Company', value: company || '-' }
+            ];
+            
+            if (server || mid) {
+                rows.push({ field: 'MID Reference', value: `${server || ''} ${mid || ''}`.trim() || '-' });
+            }
+            
+            tbody.innerHTML = rows.map(row => 
+                `<tr><td>${row.field}</td><td>${row.value}</td></tr>`
+            ).join('');
+        }
+
+        // Handle form submission
+        async function handleSubmit() {
+            const company = document.getElementById('companySelect').value;
+            const server = document.getElementById('midServer').value;
+            const mid = document.getElementById('midValue').value;
+            
+            // Validate company selection
+            if (!company) {
+                document.getElementById('companyError').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('companyError').classList.add('hidden');
+            }
+            
+            // Prepare submission data
+            const classCharacteristics = appData.table1
+                .filter(row => row.class === appData.selectedClass)
+                .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+            
+            const characteristics = [];
+            
+            classCharacteristics.forEach(charConfig => {
+                const selectInput = document.querySelector(`[data-char="${charConfig.characteristic}"]`);
+                const customInput = document.querySelector(`.char-input-custom[data-char="${charConfig.characteristic}"]`);
+                
+                let value = '';
+                if (customInput && customInput.value.trim()) {
+                    value = customInput.value.trim();
+                } else if (selectInput && selectInput.value && selectInput.value !== '__OTHER__') {
+                    value = selectInput.value;
+                }
+                
+                if (value) {
+                    characteristics.push({
+                        name: charConfig.characteristic,
+                        value: value,
+                        sequence: charConfig.sequence || 0
+                    });
+                }
+            });
+            
+            const submissionData = {
+                class: appData.selectedClass,
+                characteristics: characteristics,
+                company: company,
+                midReference: {
+                    server: server,
+                    mid: mid
+                },
+                materialDescription: appData.formData.materialDescription
+            };
+            
+            // Submit data with offline fallback
+            try {
+                document.getElementById('submitForm').disabled = true;
+                document.getElementById('submitForm').innerHTML = '<div class="loading-spinner"></div> Submitting...';
+                
+                // Try to submit to API
+                try {
+                    const response = await fetch(DATA_RECEIVER_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(submissionData)
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Material data submitted successfully!', 'success');
+                        setTimeout(() => {
+                            if (confirm('Material submitted successfully! Would you like to create another material?')) {
+                                resetForm();
+                            }
+                        }, 1000);
+                        return;
+                    } else {
+                        throw new Error('API submission failed');
+                    }
+                } catch (apiError) {
+                    console.warn('API submission failed, showing offline options:', apiError);
+                    
+                    // Show offline submission modal
+                    showOfflineSubmissionModal(submissionData);
+                }
+                
+            } catch (error) {
+                console.error('Submission error:', error);
+                showNotification('Submission failed. Please use the copy/download options.', 'error');
+                showOfflineSubmissionModal(submissionData);
+            } finally {
+                document.getElementById('submitForm').disabled = false;
+                document.getElementById('submitForm').innerHTML = '<span class="material-icons">send</span> Submit Material Data';
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            appData.selectedClass = null;
+            appData.formData = {};
+            
+            document.getElementById('classSearch').value = '';
+            document.getElementById('companySelect').value = '';
+            document.getElementById('midServer').value = '';
+            document.getElementById('midValue').value = '';
+            document.getElementById('characteristicsForm').innerHTML = '';
+            document.getElementById('materialPreview').textContent = '-';
+            
+            document.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.input-field').forEach(el => el.classList.remove('error'));
+            
+            showStep(1);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Show offline submission modal
+        function showOfflineSubmissionModal(data) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 3000;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                padding: 24px;
+                border-radius: 8px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80%;
+                overflow-y: auto;
+            `;
+            
+            const jsonString = JSON.stringify(data, null, 2);
+            
+            content.innerHTML = `
+                <h3>Manual Submission Required</h3>
+                <p>The automatic submission failed. Please use one of the options below:</p>
+                
+                <div style="margin: 16px 0;">
+                    <button id="copyToClipboard" class="btn btn-primary" style="margin-right: 8px;">
+                        <span class="material-icons">content_copy</span>
+                        Copy to Clipboard
+                    </button>
+                    <button id="downloadJson" class="btn btn-secondary">
+                        <span class="material-icons">download</span>
+                        Download JSON
+                    </button>
+                </div>
+                
+                <div style="margin: 16px 0;">
+                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">Submission Data:</label>
+                    <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 12px; border: 1px solid #ccc; border-radius: 4px;">${jsonString}</textarea>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button id="closeModal" class="btn btn-secondary">Close</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Event listeners
+            content.querySelector('#copyToClipboard').addEventListener('click', () => {
+                navigator.clipboard.writeText(jsonString).then(() => {
+                    showNotification('Data copied to clipboard!', 'success');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textarea = content.querySelector('textarea');
+                    textarea.select();
+                    document.execCommand('copy');
+                    showNotification('Data copied to clipboard!', 'success');
+                });
+            });
+            
+            content.querySelector('#downloadJson').addEventListener('click', () => {
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `material-data-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('File downloaded successfully!', 'success');
+            });
+            
+            content.querySelector('#closeModal').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+
+        // Debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+
+</body></html>
